@@ -486,7 +486,6 @@ window.modernizr = (function( window, document, undefined ) {
             str3 = 'linear-gradient(left top,#9f9, white);';
 
         setCss(
-             // legacy webkit syntax (FIXME: remove when syntax not in use anymore)
               (str1 + '-webkit- '.split(' ').join(str2 + str1) +
              // standard syntax             // trailing 'background-image:'
               prefixes.join(str3 + str1)).slice(0, -str1.length)
