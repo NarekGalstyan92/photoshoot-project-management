@@ -3,13 +3,19 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <changeSet id="1" author="ngalstyan">
+    <changeSet id="database-init" author="ngalstyan">
         <sql>
-            USE photoshoot_project_management;
+            USE
+            photoshoot_project_management;
         </sql>
     </changeSet>
 
     <changeSet id="create-user-table-1" author="ngalstyan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user"/>
+            </not>
+        </preConditions>
         <createTable tableName="user">
             <column name="id" type="INT(11)" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -41,6 +47,11 @@
     </changeSet>
 
     <changeSet id="create-booking-table-2" author="ngalstyan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="booking"/>
+            </not>
+        </preConditions>
         <createTable tableName="booking">
             <column name="id" type="INT(11)" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -64,6 +75,11 @@
     </changeSet>
 
     <changeSet id="create-agreement-table-3" author="ngalstyan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="agreement"/>
+            </not>
+        </preConditions>
         <createTable tableName="agreement">
             <column name="id" type="INT(11)" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -81,6 +97,11 @@
     </changeSet>
 
     <changeSet id="create-conversation-table-4" author="ngalstyan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="conversation"/>
+            </not>
+        </preConditions>
         <createTable tableName="conversation">
             <column name="id" type="INT(11)" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
