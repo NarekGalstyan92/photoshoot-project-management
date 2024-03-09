@@ -28,16 +28,11 @@
         <addNotNullConstraint columnDataType="int(11)" tableName="booking" columnName="user_id"/>
         <addNotNullConstraint columnDataType="int(11)" tableName="booking" columnName="event_category_id"/>
 
-    </changeSet>
-
-    <changeSet id="0012-alter-booking-table-create-event_end_time" author="ngalstyan">
-
         <addColumn tableName="booking">
             <column name="event_end_time" type="datetime">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
-
     </changeSet>
 
 </databaseChangeLog>
