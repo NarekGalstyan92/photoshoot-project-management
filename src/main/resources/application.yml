@@ -18,8 +18,6 @@ spring:
             port: 465
             class: javax.net.ssl.SSLSocketFactory
   jpa:
-    hibernate:
-      ddl-auto:
   servlet:
     multipart:
       max-file-size: 5MB
@@ -27,12 +25,10 @@ spring:
   liquibase:
     change-log:
 
-
 project:
   picture:
     upload:
       directory:
 
 server:
-  port:
   url:

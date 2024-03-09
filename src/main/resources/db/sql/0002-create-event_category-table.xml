@@ -3,7 +3,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <changeSet id="0002-add-category-tale" author="ngalstyan">
+    <changeSet id="0002-create-event_category-table" author="ngalstyan">
 
         <preConditions onFail="MARK_RAN">
             <not>

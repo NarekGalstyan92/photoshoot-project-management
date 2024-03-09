@@ -4,32 +4,13 @@
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
 
-    <changeSet id="0009-add-review-table" author="ngalstyan">
+    <changeSet id="0010-create-image-table" author="ngalstyan">
 
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="review"/>
                 <tableExists tableName="image"/>
             </not>
         </preConditions>
-
-        <createTable tableName="review">
-            <column name="id" type="INT(11)" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="content" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="user_id" type="int(11)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addForeignKeyConstraint baseTableName="review"
-                                 baseColumnNames="user_id"
-                                 constraintName="fk_review_user"
-                                 referencedColumnNames="id"
-                                 referencedTableName="user"/>
 
         <createTable tableName="image">
             <column name="id" type="INT(11)" autoIncrement="true">
