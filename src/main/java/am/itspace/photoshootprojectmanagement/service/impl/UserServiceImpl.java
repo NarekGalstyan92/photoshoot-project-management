@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findById(int id) {
         Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isPresent() && userOptional.get().isDeleted()) {
+        if ((userOptional.isPresent() && userOptional.get().isDeleted()) || userOptional.isEmpty()) {
             throw new EntityNotFoundException();
         }
 
