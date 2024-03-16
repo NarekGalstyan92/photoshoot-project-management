@@ -1,0 +1,38 @@
+package am.itspace.photoshootprojectmanagement.security;
+
+
+import am.itspace.photoshootprojectmanagement.entity.User;
+import am.itspace.photoshootprojectmanagement.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class UserDetailService implements UserDetailsService {
+
+    private final UserService userService;
+
+    /**
+     * Loads a user's details by their username.
+     *
+     * @param username The username of the user whose details need to be loaded.
+     * @return A UserDetails object containing the user's details.
+     * @throws UsernameNotFoundException If the user with the given username does not exist.
+     */
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        Optional<User> byEmail = userService.findByEmail(username);
+
+        if (byEmail.isEmpty()) {
+            throw new UsernameNotFoundException("User with " + username + " does not exists!");
+        }
+
+        return new SpringUser(byEmail.get());
+    }
+}
