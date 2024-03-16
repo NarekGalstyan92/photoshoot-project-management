@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Optional;
-
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -50,13 +48,9 @@ public class UserController {
     @GetMapping("/update/{id}")
     public String updatePage(ModelMap modelMap,
                              @PathVariable("id") int id) {
-        Optional<User> userOptional = userService.findById(id);
-        if (userOptional.isEmpty()) {
-            return "";
-        }
+        modelMap.addAttribute("user", userService.findById(id).get());
 
-        modelMap.addAttribute("user", userOptional.get());
-        return "test/updateUser";
+        return "";
     }
 
     @PostMapping("/update")
