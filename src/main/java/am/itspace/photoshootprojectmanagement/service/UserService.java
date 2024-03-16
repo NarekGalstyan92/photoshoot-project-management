@@ -1,20 +1,23 @@
 package am.itspace.photoshootprojectmanagement.service;
 
 import am.itspace.photoshootprojectmanagement.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
 
     User save(User user, MultipartFile multipartFile);
 
-    List<User> findAll();
+    Page<User> findAll(Pageable pageable);
 
     Optional<User> findById(int id);
 
     Optional<User> findByEmail(String email);
+
+    Page<User> findByIsDeleted(boolean b, Pageable pageable);
 
     User update(User user, MultipartFile multipartFile);
 
@@ -22,5 +25,4 @@ public interface UserService {
 
     void deletePicture(int id);
 
-    List<User> findByIsDeleted(boolean b);
 }
