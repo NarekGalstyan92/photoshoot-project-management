@@ -8,11 +8,12 @@ import am.itspace.photoshootprojectmanagement.repository.UserRepository;
 import am.itspace.photoshootprojectmanagement.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,8 +55,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public Page<User> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
     @Override
@@ -71,6 +72,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public Page<User> findByIsDeleted(boolean deleted, Pageable pageable) {
+        return userRepository.findByIsDeleted(deleted, pageable);
     }
 
     @Override
@@ -121,10 +127,5 @@ public class UserServiceImpl implements UserService {
                 fileComponent.deletePicture(avatarUrl);
             }
         }
-    }
-
-    @Override
-    public List<User> findByIsDeleted(boolean deleted) {
-        return userRepository.findByIsDeleted(deleted);
     }
 }
