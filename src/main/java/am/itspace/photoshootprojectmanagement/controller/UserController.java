@@ -68,7 +68,6 @@ public class UserController {
     @GetMapping("/register")
     public String registerPage(ModelMap modelMap,
                                @RequestParam(value = "msg", required = false) String msg) {
-
         if (msg != null && !msg.isEmpty()) {
             modelMap.addAttribute("msg", msg);
         }
@@ -122,13 +121,7 @@ public class UserController {
     @GetMapping("/update/{id}")
     public String updatePage(ModelMap modelMap,
                              @PathVariable("id") int id) {
-
-        Optional<User> userOptional = userService.findById(id);
-        if (userOptional.isEmpty()) {
-            return "";
-        }
-
-        modelMap.addAttribute("user", userOptional.get());
+        modelMap.addAttribute("user", userService.findById(id).get());
         return "";
     }
 

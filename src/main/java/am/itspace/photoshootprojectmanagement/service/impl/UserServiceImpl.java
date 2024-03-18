@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User user, MultipartFile multipartFile) {
-        Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
+        Optional<User> userOptional = findByEmail(user.getEmail());
 
         if (userOptional.isPresent()) {
             User userOpt = userOptional.get();
@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findById(int id) {
         Optional<User> userOptional = userRepository.findById(id);
         if ((userOptional.isPresent() && userOptional.get().isDeleted()) || userOptional.isEmpty()) {
-            throw new EntityNotFoundException();
+            throw new EntityNotFoundException("User does not exists!");
         }
 
         return userOptional;
@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user, MultipartFile multipartFile) {
-        User userById = userRepository.findById(user.getId()).get();
+        User userById = findById(user.getId()).get();
 
         if (multipartFile != null && !multipartFile.isEmpty()) {
             user.setAvatarUrl(fileComponent.uploadPicture(multipartFile));
@@ -100,12 +100,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(int id) {
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isEmpty()) {
-            throw new EntityNotFoundException("User does not exists!");
-        }
-
-        User user = userOptional.get();
+        User user = findById(id).get();
 
         user.setDeleted(true);
         user.setActive(false);
@@ -115,17 +110,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deletePicture(int id) {
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            String avatarUrl = user.getAvatarUrl();
+        User user = findById(id).get();
+        String avatarUrl = user.getAvatarUrl();
 
-            if (avatarUrl != null && !user.getAvatarUrl().isEmpty()) {
-                user.setAvatarUrl(null);
-                userRepository.save(user);
+        if (avatarUrl != null && !user.getAvatarUrl().isEmpty()) {
+            user.setAvatarUrl(null);
+            userRepository.save(user);
 
-                fileComponent.deletePicture(avatarUrl);
-            }
+            fileComponent.deletePicture(avatarUrl);
         }
     }
 }

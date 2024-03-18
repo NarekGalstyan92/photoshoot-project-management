@@ -16,7 +16,7 @@ public class MainController {
 
     @GetMapping("/")
     public String mainPage() {
-        return "index";
+        return "";
     }
 
     @GetMapping(value = "/getPicture", produces = MediaType.IMAGE_JPEG_VALUE)
