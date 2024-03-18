@@ -29,7 +29,7 @@ public class UserDetailService implements UserDetailsService {
         Optional<User> userOptional = userService.findByEmail(username);
 
         if (userOptional.isEmpty()) {
-            throw new UsernameNotFoundException("User with email" + username + " does not exists!");
+            throw new UsernameNotFoundException("User with email " + username + " does not exists!");
         }
 
         return new SpringUser(userOptional.get());
