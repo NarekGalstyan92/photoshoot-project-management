@@ -11,7 +11,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
@@ -22,31 +27,33 @@ import java.util.Optional;
 @Slf4j
 public class UserController {
 
-    @Value("${project.picture.upload.directory}")
-    private String uploadDirectory;
-
     private final UserService userService;
 
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public String usersPage(ModelMap modelMap) {
+
         modelMap.addAttribute("users", userService.findByIsDeleted(false));
+
         return "";
     }
 
     @GetMapping("/register")
     public String registerPage(ModelMap modelMap,
                                @RequestParam(value = "msg", required = false) String msg) {
+
         if (msg != null && !msg.isEmpty()) {
             modelMap.addAttribute("msg", msg);
         }
+
         return "users/register";
     }
 
     @PostMapping("/register")
     public String register(@ModelAttribute User user,
                            @RequestParam("picture") MultipartFile multipartFile) {
+
         Optional<User> byEmail = userService.findByEmail(user.getEmail());
         if (byEmail.isPresent()) {
             return "redirect:/users/register?msg=Email already in use";
@@ -56,17 +63,20 @@ public class UserController {
 
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             userService.save(user, multipartFile);
+
             return "redirect:/users/register?msg=User Registered";
         }
     }
 
     @GetMapping("/loginPage")
     public String loginPage(@AuthenticationPrincipal SpringUser springUser) {
+
         log.info("loginPage called");
         if (springUser == null) {
             return "loginPage";
         }
         log.info("SpringUser {} logged in", springUser.getUser().getEmail());
+
         return "redirect:/";
     }
 
@@ -79,24 +89,28 @@ public class UserController {
         if (user.getRole() == Role.ADMIN) {
             return "redirect:/admin/home";
         }
+
         return "redirect:/";
     }
 
     @GetMapping("/update/{id}")
     public String updatePage(ModelMap modelMap,
                              @PathVariable("id") int id) {
+
         Optional<User> userOptional = userService.findById(id);
         if (userOptional.isEmpty()) {
             return "";
         }
 
         modelMap.addAttribute("user", userOptional.get());
+
         return "test/updateUser";
     }
 
     @PostMapping("/update")
     public String update(@ModelAttribute User user,
                          @RequestParam("picture") MultipartFile multipartFile) {
+
         userService.update(user, multipartFile);
 
         return "";
@@ -104,6 +118,7 @@ public class UserController {
 
     @GetMapping("/delete/{id}")
     public String deleteById(@PathVariable("id") int id) {
+
         userService.deleteById(id);
 
         return "";
@@ -111,6 +126,7 @@ public class UserController {
 
     @GetMapping("/deletePicture/{id}")
     public String deletePicture(@PathVariable("id") int id) {
+        
         userService.deletePicture(id);
 
         return "";

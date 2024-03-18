@@ -1,6 +1,5 @@
 package am.itspace.photoshootprojectmanagement.security;
 
-
 import am.itspace.photoshootprojectmanagement.entity.User;
 import am.itspace.photoshootprojectmanagement.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +26,12 @@ public class UserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Optional<User> byEmail = userService.findByEmail(username);
+        Optional<User> userOptional = userService.findByEmail(username);
 
-        if (byEmail.isEmpty()) {
-            throw new UsernameNotFoundException("User with " + username + " does not exists!");
+        if (userOptional.isEmpty()) {
+            throw new UsernameNotFoundException("User with email" + username + " does not exists!");
         }
 
-        return new SpringUser(byEmail.get());
+        return new SpringUser(userOptional.get());
     }
 }
