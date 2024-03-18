@@ -72,7 +72,7 @@ public class UserController {
             modelMap.addAttribute("msg", msg);
         }
 
-        return "";
+        return "users/register";
     }
 
     @PostMapping("/register")
