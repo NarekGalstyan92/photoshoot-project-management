@@ -1,6 +1,7 @@
 package am.itspace.photoshootprojectmanagement.controller;
 
 import am.itspace.photoshootprojectmanagement.entity.Review;
+import am.itspace.photoshootprojectmanagement.entity.User;
 import am.itspace.photoshootprojectmanagement.service.ReviewService;
 import am.itspace.photoshootprojectmanagement.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-import java.util.stream.IntStream;
-
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/reviews")
@@ -32,7 +30,7 @@ public class ReviewController {
     @GetMapping
     public String reviewsPage(ModelMap modelMap,
                               @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                              @RequestParam(value = "size", required = false, defaultValue = "2") int size,
+                              @RequestParam(value = "size", required = false, defaultValue = "3") int size,
                               @RequestParam(value = "orderBy", required = false, defaultValue = "id") String orderBy,
                               @RequestParam(value = "order", required = false, defaultValue = "DESC") String order) {
 
@@ -42,19 +40,9 @@ public class ReviewController {
         Page<Review> reviewsPage = reviewService.findAll(pageable);
 
         modelMap.addAttribute("reviews", reviewsPage);
-        modelMap.addAttribute("currentPage", page);
-        modelMap.addAttribute("size", size);
-        modelMap.addAttribute("orderBy", orderBy);
-        modelMap.addAttribute("order", order);
 
         int totalPages = reviewsPage.getTotalPages();
-        if (totalPages > 0) {
-            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
-                    .boxed()
-                    .toList();
-
-            modelMap.addAttribute("pageNumbers", pageNumbers);
-        }
+        reviewService.addPaginationAttributes(modelMap, page, size, orderBy, order, totalPages);
 
         return "";
     }
@@ -73,9 +61,22 @@ public class ReviewController {
 
     @GetMapping("/update/{id}")
     public String updatePage(ModelMap modelMap,
-                             @PathVariable("id") int id) {
+                             @PathVariable("id") int id,
+                             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                             @RequestParam(value = "size", required = false, defaultValue = "3") int size,
+                             @RequestParam(value = "orderBy", required = false, defaultValue = "id") String orderBy,
+                             @RequestParam(value = "order", required = false, defaultValue = "DESC") String order) {
+
         modelMap.addAttribute("review", reviewService.findById(id).get());
-        modelMap.addAttribute("users", userService.findAll());
+
+        Sort sort = Sort.by(Sort.Direction.fromString(order), orderBy);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+
+        Page<User> usersPage = userService.findByIsDeleted(false, pageable);
+        modelMap.addAttribute("users", usersPage);
+
+        int totalPages = usersPage.getTotalPages();
+        reviewService.addPaginationAttributes(modelMap, page, size, orderBy, order, totalPages);
 
         return "";
     }

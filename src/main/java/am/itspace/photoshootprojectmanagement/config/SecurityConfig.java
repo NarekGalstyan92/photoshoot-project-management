@@ -31,6 +31,10 @@ public class SecurityConfig {
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/users/loginPage").permitAll()
                         .requestMatchers("/users/register").permitAll()
+                        .requestMatchers("/reviews").hasAnyAuthority(Role.ADMIN.name())
+                        .requestMatchers("/reviews/create").authenticated()
+                        .requestMatchers("/reviews/update/").authenticated()
+                        .requestMatchers("/reviews/delete/").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
@@ -44,6 +48,7 @@ public class SecurityConfig {
                 .headers(headers -> headers.xssProtection(
                         xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
                 ));
+
         return httpSecurity.build();
     }
 

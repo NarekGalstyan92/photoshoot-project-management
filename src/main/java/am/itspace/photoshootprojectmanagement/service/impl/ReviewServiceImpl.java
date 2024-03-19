@@ -8,8 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ModelMap;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -47,5 +50,20 @@ public class ReviewServiceImpl implements ReviewService {
         findById(id);
 
         reviewRepository.deleteById(id);
+    }
+
+    public void addPaginationAttributes(ModelMap modelMap, int page, int size, String orderBy, String order, int totalPages) {
+        modelMap.addAttribute("currentPage", page);
+        modelMap.addAttribute("size", size);
+        modelMap.addAttribute("orderBy", orderBy);
+        modelMap.addAttribute("order", order);
+
+        if (totalPages > 0) {
+            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+                    .boxed()
+                    .toList();
+
+            modelMap.addAttribute("pageNumbers", pageNumbers);
+        }
     }
 }
