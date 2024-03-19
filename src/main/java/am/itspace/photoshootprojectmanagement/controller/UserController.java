@@ -4,23 +4,23 @@ import am.itspace.photoshootprojectmanagement.entity.Role;
 import am.itspace.photoshootprojectmanagement.entity.User;
 import am.itspace.photoshootprojectmanagement.security.SpringUser;
 import am.itspace.photoshootprojectmanagement.service.UserService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.ui.ModelMap;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
@@ -95,13 +95,13 @@ public class UserController {
 
     @GetMapping("/loginPage")
     public String loginPage(@AuthenticationPrincipal SpringUser springUser) {
-
         log.info("loginPage called");
+
         if (springUser == null) {
             return "loginPage";
         }
-        log.info("SpringUser {} logged in", springUser.getUser().getEmail());
 
+        log.info("SpringUser {} logged in ", springUser.getUser().getEmail());
         return "redirect:/";
     }
 
