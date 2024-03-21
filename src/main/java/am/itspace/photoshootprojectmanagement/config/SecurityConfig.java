@@ -5,6 +5,7 @@ import am.itspace.photoshootprojectmanagement.security.UserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,21 +27,36 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
+                        //Login and Register
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/admin/**").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/login").permitAll()
                         .requestMatchers("/users/loginPage").permitAll()
+                        .requestMatchers("/users/loginSuccess").authenticated()
                         .requestMatchers("/users/register").permitAll()
-                        .requestMatchers("/reviews").hasAnyAuthority(Role.ADMIN.name())
-                        .requestMatchers("/reviews/create").authenticated()
-                        .requestMatchers("/reviews/update/").authenticated()
-                        .requestMatchers("/reviews/delete/").authenticated()
+                        // Reviews
+                        .requestMatchers("/reviews").permitAll()
+                        .requestMatchers("/reviews/create").hasAnyAuthority(Role.USER.name())
+                        .requestMatchers("/reviews/update/{id}").hasAnyAuthority(Role.USER.name())
+                        // Bookings
+                        .requestMatchers("/bookings").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/bookings\\?page=\\d+&size=\\d+&orderBy=\\w+&order=\\w+").hasAnyAuthority(Role.USER.name())
+                        .requestMatchers("/bookings/create").hasAnyAuthority(Role.USER.name())
+                        .requestMatchers("/bookings/create**").authenticated()
+                        .requestMatchers("/bookings/update/**").hasAnyAuthority(Role.USER.name())
+                        .requestMatchers("/bookings/update/**").authenticated()
+                        // Event Categories
+                        .requestMatchers(HttpMethod.GET, "/eventCategory").permitAll()
+                        .requestMatchers("/eventCategory/create/**").hasAnyAuthority(Role.ADMIN.name())
+                        .requestMatchers("/eventCategory/update/**").hasAnyAuthority(Role.ADMIN.name())
+                        .requestMatchers("/eventCategory/delete/**").hasAnyAuthority(Role.ADMIN.name())
                         .anyRequest().authenticated()
+
                 )
                 .formLogin(formLogin -> formLogin
                         .loginProcessingUrl("/login")
-                        .loginPage("/loginPage")
-                        .defaultSuccessUrl("/users/loginSuccess", true)
+                        .loginPage("/loginPage?error=true")
+                        .defaultSuccessUrl("/", true)
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")

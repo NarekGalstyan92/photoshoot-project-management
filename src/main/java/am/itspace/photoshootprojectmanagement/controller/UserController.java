@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Controller
@@ -33,8 +31,6 @@ import java.util.stream.IntStream;
 public class UserController {
 
     private final UserService userService;
-
-    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public String usersPage(ModelMap modelMap,
@@ -76,46 +72,36 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute User user,
-                           @RequestParam("picture") MultipartFile multipartFile) {
-
-        Optional<User> byEmail = userService.findByEmail(user.getEmail());
-        if (byEmail.isPresent()) {
-            return "redirect:/users/register?msg=Email already in use";
-        } else {
-
-            // TODO create a method which sends a verification email to user
-
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userService.save(user, multipartFile);
-
-            return "redirect:/users/register?msg=User Registered";
-        }
+    public String register(@ModelAttribute User user, @RequestParam("picture") MultipartFile multipartFile) {
+        return userService.registerUser(user, multipartFile).orElseThrow();
     }
 
     @GetMapping("/loginPage")
-    public String loginPage(@AuthenticationPrincipal SpringUser springUser) {
-        log.info("loginPage called");
+    public String loginPage(@RequestParam(value = "error", required = false) String error, ModelMap modelMap, @AuthenticationPrincipal SpringUser springUser) {
 
-        if (springUser == null) {
-            return "loginPage";
+        if ("true".equals(error)) {
+            modelMap.addAttribute("errorMessage", "Invalid username or password. Please try again.");
         }
 
-        log.info("SpringUser {} logged in ", springUser.getUser().getEmail());
-        return "redirect:/";
+        if (springUser != null) {
+            if (springUser.getUser().getRole() == Role.ADMIN) {
+                return "redirect:/admin/home"; // Example: Redirect admins to their home page
+            } else {
+                return "redirect:/"; // Redirect others to the main page
+            }
+        }
+
+
+        return "loginPage";
     }
 
     @GetMapping("/loginSuccess")
     public String loginSuccess(@AuthenticationPrincipal SpringUser springUser) {
-
-        User user = springUser.getUser();
-        log.info("SpringUser {} is", springUser.getUser().getEmail());
-
-        if (user.getRole() == Role.ADMIN) {
-            return "redirect:/admin/home";
+        if (springUser != null) {
+            // User was already authenticated before, so redirect to a different page
+            return "redirect:/";
         }
-
-        return "redirect:/";
+        return "redirect:/users/eventCategory";
     }
 
     @GetMapping("/update/{id}")
