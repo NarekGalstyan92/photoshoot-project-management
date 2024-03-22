@@ -1,7 +1,6 @@
 package am.itspace.photoshootprojectmanagement.controller;
 
 import am.itspace.photoshootprojectmanagement.entity.Booking;
-import am.itspace.photoshootprojectmanagement.entity.User;
 import am.itspace.photoshootprojectmanagement.security.SpringUser;
 import am.itspace.photoshootprojectmanagement.service.BookingService;
 import am.itspace.photoshootprojectmanagement.service.EventCategoryService;
@@ -23,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Controller
@@ -40,7 +37,7 @@ public class BookingController {
     private final EventCategoryService eventCategoryService;
 
     @GetMapping
-    public String bookingPage(ModelMap modelMap, @AuthenticationPrincipal SpringUser springUser,
+    public String bookingPage(ModelMap modelMap,
                               @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                               @RequestParam(value = "size", required = false, defaultValue = "3") int size,
                               @RequestParam(value = "orderBy", required = false, defaultValue = "bookingDate") String orderBy,
@@ -63,7 +60,6 @@ public class BookingController {
         }
 
         modelMap.addAttribute("bookings", bookingsPage);
-        modelMap.addAttribute("currentUser", springUser);
 
         return "users/bookingPage";
     }
@@ -76,10 +72,9 @@ public class BookingController {
     }
 
     @PostMapping("/create")
-    public String createBooking(@ModelAttribute Booking booking, @AuthenticationPrincipal SpringUser springUser) {
-        User user = userService.findByEmail(springUser.getUsername())
-                .orElseThrow(() -> new NoSuchElementException("No user found with email: " + springUser.getUsername()));
-        booking.setUser(user);
+    public String createBooking(@ModelAttribute Booking booking,
+                                @AuthenticationPrincipal SpringUser springUser) {
+        booking.setUser(userService.findByEmail(springUser.getUsername()).get());
         bookingService.save(booking);
 
         return "redirect:/bookings";
@@ -87,24 +82,18 @@ public class BookingController {
 
     @GetMapping("/update/{id}")
     public String updatePage(ModelMap modelMap,
-                             @PathVariable("id") int id,
-                             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                             @RequestParam(value = "size", required = false, defaultValue = "3") int size,
-                             @RequestParam(value = "orderBy", required = false, defaultValue = "bookingDate") String orderBy,
-                             @RequestParam(value = "order", required = false, defaultValue = "DESC") String order) {
+                             @PathVariable("id") int id) {
 
-        modelMap.addAttribute("booking", bookingService.findById(id).orElseThrow(() -> new NoSuchElementException("No booking found with id: " + id)));
+        modelMap.addAttribute("booking", bookingService.findById(id).get());
         modelMap.addAttribute("eventCategories", eventCategoryService.findAll());
 
         return "users/updateBooking";
     }
 
     @PostMapping("/update/{id}")
-    public String update(@ModelAttribute Booking booking, @PathVariable("id") int id, @AuthenticationPrincipal SpringUser springUser) {
+    public String update(@ModelAttribute Booking booking,
+                         @PathVariable("id") int id) {
 
-        Optional<User> userOptionalByEmail = userService.findByEmail(springUser.getUsername());
-
-        booking.setUser(userOptionalByEmail.orElseThrow(() -> new NoSuchElementException("No user found")));
         booking.setId(id);
         bookingService.update(booking);
 
@@ -114,12 +103,7 @@ public class BookingController {
     @GetMapping("/delete/{id}")
     public String deleteById(@PathVariable("id") int id) {
 
-        Optional<Booking> bookingOptional = bookingService.findById(id);
-        if (bookingOptional.isPresent()) {
-            bookingService.deleteById(id);
-
-            return "redirect:/bookings";
-        }
+        bookingService.deleteById(id);
 
         return "redirect:/bookings";
     }

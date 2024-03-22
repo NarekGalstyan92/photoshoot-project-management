@@ -73,26 +73,20 @@ public class UserController {
 
     @PostMapping("/register")
     public String register(@ModelAttribute User user, @RequestParam("picture") MultipartFile multipartFile) {
-        return userService.registerUser(user, multipartFile).orElseThrow();
+        return userService.registerUser(user, multipartFile).get();
     }
 
     @GetMapping("/loginPage")
-    public String loginPage(@RequestParam(value = "error", required = false) String error, ModelMap modelMap, @AuthenticationPrincipal SpringUser springUser) {
+    public String loginPage(ModelMap modelMap) {
 
-        if ("true".equals(error)) {
-            modelMap.addAttribute("errorMessage", "Invalid username or password. Please try again.");
-        }
+        SpringUser springUser = (SpringUser) modelMap.get("springUser");
+        if (springUser == null)
+            return "loginPage";
 
-        if (springUser != null) {
-            if (springUser.getUser().getRole() == Role.ADMIN) {
-                return "redirect:/admin/home"; // Example: Redirect admins to their home page
-            } else {
-                return "redirect:/"; // Redirect others to the main page
-            }
-        }
+        return (springUser.getUser().getRole() == Role.ADMIN)
+                ? "redirect:/admin/home"
+                : "redirect:/";
 
-
-        return "loginPage";
     }
 
     @GetMapping("/loginSuccess")
@@ -101,7 +95,7 @@ public class UserController {
             // User was already authenticated before, so redirect to a different page
             return "redirect:/";
         }
-        return "redirect:/users/eventCategory";
+        return "redirect:/users/eventCategories";
     }
 
     @GetMapping("/update/{id}")

@@ -22,28 +22,11 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking save(Booking booking) {
 
-        if (validateBooking(booking)) {
-            booking.setStatus(Status.PENDING);
-            booking.setBookingDate(new Date());
-            return bookingRepository.save(booking);
-        }
-        throw new InvalidBookingException("Booking validation failed");
-    }
+        booking.setStatus(Status.PENDING);
+        booking.setBookingDate(new Date());
 
-    private boolean validateBooking(Booking booking) {
-        if (booking == null) {
-            throw new InvalidBookingException("Booking is null");
-        }
+        return bookingRepository.save(booking);
 
-        if (booking.getUser().getId() == 0) {
-            throw new InvalidBookingException("User ID was less than 0");
-        }
-
-        // Check if eventStartTime is greater than eventEndTime
-        if (booking.getEventStartTime().after(booking.getEventEndTime())) {
-            throw new InvalidBookingException("Event end time should be after start time");
-        }
-        return true;
     }
 
     @Override
@@ -68,10 +51,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public void deleteById(int id) {
-        if (findById(id).isEmpty()) {
-            throw new InvalidBookingException("Booking with " + id + " id does not exist!");
-        }
-
+        findById(id);
         bookingRepository.deleteById(id);
     }
 }

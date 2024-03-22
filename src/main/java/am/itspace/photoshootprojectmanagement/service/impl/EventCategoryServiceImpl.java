@@ -1,7 +1,6 @@
 package am.itspace.photoshootprojectmanagement.service.impl;
 
 import am.itspace.photoshootprojectmanagement.entity.EventCategory;
-import am.itspace.photoshootprojectmanagement.exception.InvalidBookingException;
 import am.itspace.photoshootprojectmanagement.exception.InvalidEventCategoryException;
 import am.itspace.photoshootprojectmanagement.repository.EventCategoryRepository;
 import am.itspace.photoshootprojectmanagement.service.EventCategoryService;
@@ -20,30 +19,7 @@ public class EventCategoryServiceImpl implements EventCategoryService {
 
     @Override
     public EventCategory save(EventCategory eventCategory) {
-        if (validateEventCategory(eventCategory)) {
-            return eventCategoryRepository.save(eventCategory);
-        }
-        throw new InvalidBookingException("Booking validation failed");
-    }
-
-    private boolean validateEventCategory(EventCategory eventCategory) {
-        if (eventCategory == null) {
-            throw new InvalidEventCategoryException("EventCategory is null");
-        }
-
-        if (eventCategory.getName() == null || eventCategory.getName().isEmpty()) {
-            throw new InvalidEventCategoryException("EventCategory name is null or empty");
-        }
-
-        if (eventCategory.getDescription() == null || eventCategory.getDescription().isEmpty()) {
-            throw new InvalidEventCategoryException("EventCategory description is null or empty");
-        }
-
-        if (eventCategory.getStartingPrice() <= 0) {
-            throw new InvalidEventCategoryException("Starting price must be greater than 0");
-        }
-
-        return true;
+        return eventCategoryRepository.save(eventCategory);
     }
 
     @Override

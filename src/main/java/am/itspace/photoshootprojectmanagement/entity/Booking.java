@@ -1,6 +1,5 @@
 package am.itspace.photoshootprojectmanagement.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -29,7 +28,6 @@ public class Booking {
 
     private int participants;
 
-    @Column(name = "booking_date")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date bookingDate;
 
