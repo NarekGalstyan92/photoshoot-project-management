@@ -82,18 +82,19 @@ public class UserController {
             return "loginPage";
         }
 
-        return (springUser.getUser().getRole() == Role.ADMIN)
-                ? "redirect:/admin/home"
-                : "redirect:/";
+        return "redirect:/";
     }
 
     @GetMapping("/loginSuccess")
     public String loginSuccess(@AuthenticationPrincipal SpringUser springUser) {
-        if (springUser != null) {
-            // User was already authenticated before, so redirect to a different page
-            return "redirect:/";
-        }
-        return "redirect:/users/eventCategories";
+        return (springUser.getUser().getRole() == Role.ADMIN)
+                ? "redirect:/users/admin/home"
+                : "redirect:/";
+    }
+
+    @GetMapping("/admin/home")
+    public String adminPage() {
+        return "admin/home";
     }
 
     @GetMapping("/update/{id}")

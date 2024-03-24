@@ -37,11 +37,11 @@ public class SecurityConfig {
                         // Reviews
                         .requestMatchers("/reviews").permitAll()
                         .requestMatchers("/reviews/create").hasAnyAuthority(Role.USER.name())
-                        .requestMatchers("/reviews/update/**").hasAnyAuthority(Role.USER.name())
+                        .requestMatchers("/reviews/update/**").authenticated()
                         // Bookings
                         .requestMatchers("/bookings").permitAll()
-                        .requestMatchers("/bookings/create/**").authenticated()
-                        .requestMatchers("/bookings/update/**").authenticated()
+                        .requestMatchers("/bookings/**").authenticated()
+
                         // Event Categories
                         .requestMatchers(HttpMethod.GET, "/eventCategories").permitAll()
                         .requestMatchers("/eventCategories/**").hasAnyAuthority(Role.ADMIN.name())
@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin
                         .loginProcessingUrl("/login")
                         .loginPage("/users/loginPage")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/users/loginSuccess", true)
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")

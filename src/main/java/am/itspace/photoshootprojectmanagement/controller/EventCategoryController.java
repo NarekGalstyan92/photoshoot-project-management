@@ -29,12 +29,12 @@ public class EventCategoryController {
     }
 
     @GetMapping("/create")
-    public String create() {
+    public String createCategoryPage() {
         return "admin/createEvent";
     }
 
     @PostMapping("/create")
-    public String eventCategory(@ModelAttribute EventCategory eventCategory) {
+    public String createCategory(@ModelAttribute EventCategory eventCategory) {
 
         eventCategoryService.save(eventCategory);
 
