@@ -5,7 +5,6 @@ import am.itspace.photoshootprojectmanagement.entity.User;
 import am.itspace.photoshootprojectmanagement.security.SpringUser;
 import am.itspace.photoshootprojectmanagement.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +26,6 @@ import java.util.stream.IntStream;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/users")
-@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -72,21 +70,21 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute User user, @RequestParam("picture") MultipartFile multipartFile) {
+    public String register(@ModelAttribute User user,
+                           @RequestParam("picture") MultipartFile multipartFile) {
         return userService.registerUser(user, multipartFile).get();
     }
 
     @GetMapping("/loginPage")
-    public String loginPage(ModelMap modelMap) {
+    public String loginPage(@AuthenticationPrincipal SpringUser springUser) {
 
-        SpringUser springUser = (SpringUser) modelMap.get("springUser");
-        if (springUser == null)
+        if (springUser == null) {
             return "loginPage";
+        }
 
         return (springUser.getUser().getRole() == Role.ADMIN)
                 ? "redirect:/admin/home"
                 : "redirect:/";
-
     }
 
     @GetMapping("/loginSuccess")

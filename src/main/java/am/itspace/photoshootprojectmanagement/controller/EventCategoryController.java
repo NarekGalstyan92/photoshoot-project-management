@@ -23,18 +23,19 @@ public class EventCategoryController {
     @GetMapping
     public String eventCategoryPage(ModelMap modelMap) {
 
-        modelMap.addAttribute("eventCategory", eventCategoryService.findAll());
+        modelMap.addAttribute("eventCategories", eventCategoryService.findAll());
 
         return "users/events";
     }
 
     @GetMapping("/create")
-    public String createEventCategoryPage() {
+    public String create() {
         return "admin/createEvent";
     }
 
     @PostMapping("/create")
     public String eventCategory(@ModelAttribute EventCategory eventCategory) {
+
         eventCategoryService.save(eventCategory);
 
         return "redirect:/eventCategories";
@@ -43,16 +44,15 @@ public class EventCategoryController {
     @GetMapping("/update/{id}")
     public String updatePage(ModelMap modelMap,
                              @PathVariable("id") int id) {
+
         modelMap.addAttribute("eventCategory", eventCategoryService.findById(id).get());
 
         return "admin/updateEvent";
     }
 
-    @PostMapping("/update/{id}")
-    public String update(@ModelAttribute EventCategory eventCategory,
-                         @PathVariable("id") int id) {
+    @PostMapping("/update")
+    public String update(@ModelAttribute EventCategory eventCategory) {
 
-        eventCategory.setId(id);
         eventCategoryService.update(eventCategory);
 
         return "redirect:/eventCategories";

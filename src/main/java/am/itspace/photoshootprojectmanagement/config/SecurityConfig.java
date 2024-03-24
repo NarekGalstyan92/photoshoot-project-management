@@ -37,25 +37,20 @@ public class SecurityConfig {
                         // Reviews
                         .requestMatchers("/reviews").permitAll()
                         .requestMatchers("/reviews/create").hasAnyAuthority(Role.USER.name())
-                        .requestMatchers("/reviews/update/{id}").hasAnyAuthority(Role.USER.name())
+                        .requestMatchers("/reviews/update/**").hasAnyAuthority(Role.USER.name())
                         // Bookings
                         .requestMatchers("/bookings").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/bookings\\?page=\\d+&size=\\d+&orderBy=\\w+&order=\\w+").hasAnyAuthority(Role.USER.name())
-                        .requestMatchers("/bookings/create").hasAnyAuthority(Role.USER.name())
                         .requestMatchers("/bookings/create/**").authenticated()
-                        .requestMatchers("/bookings/update/**").hasAnyAuthority(Role.USER.name())
                         .requestMatchers("/bookings/update/**").authenticated()
                         // Event Categories
                         .requestMatchers(HttpMethod.GET, "/eventCategories").permitAll()
-                        .requestMatchers("/eventCategories/create/**").hasAnyAuthority(Role.ADMIN.name())
-                        .requestMatchers("/eventCategories/update/**").hasAnyAuthority(Role.ADMIN.name())
-                        .requestMatchers("/eventCategories/delete/**").hasAnyAuthority(Role.ADMIN.name())
+                        .requestMatchers("/eventCategories/**").hasAnyAuthority(Role.ADMIN.name())
                         .anyRequest().authenticated()
 
                 )
                 .formLogin(formLogin -> formLogin
                         .loginProcessingUrl("/login")
-                        .loginPage("/loginPage?error=true")
+                        .loginPage("/users/loginPage")
                         .defaultSuccessUrl("/", true)
                 )
                 .logout(logout -> logout

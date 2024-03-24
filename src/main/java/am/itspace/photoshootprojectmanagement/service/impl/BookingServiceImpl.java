@@ -2,9 +2,9 @@ package am.itspace.photoshootprojectmanagement.service.impl;
 
 import am.itspace.photoshootprojectmanagement.entity.Booking;
 import am.itspace.photoshootprojectmanagement.entity.Status;
-import am.itspace.photoshootprojectmanagement.exception.InvalidBookingException;
 import am.itspace.photoshootprojectmanagement.repository.BookingRepository;
 import am.itspace.photoshootprojectmanagement.service.BookingService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +38,7 @@ public class BookingServiceImpl implements BookingService {
     public Optional<Booking> findById(int id) {
         Optional<Booking> bookingOptional = bookingRepository.findById(id);
         if (bookingOptional.isEmpty()) {
-            throw new InvalidBookingException("Booking with " + id + " id does not exists!");
+            throw new EntityNotFoundException("Booking with " + id + " id does not exists!");
         }
 
         return bookingOptional;
@@ -53,5 +53,10 @@ public class BookingServiceImpl implements BookingService {
     public void deleteById(int id) {
         findById(id);
         bookingRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Booking> findByUserId(Pageable pageable, int id) {
+        return bookingRepository.findByUserId(id, pageable);
     }
 }

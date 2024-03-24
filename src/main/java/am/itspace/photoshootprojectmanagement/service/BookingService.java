@@ -18,4 +18,5 @@ public interface BookingService {
 
     void deleteById(int id);
 
+    Page<Booking> findByUserId(Pageable pageable, int id);
 }

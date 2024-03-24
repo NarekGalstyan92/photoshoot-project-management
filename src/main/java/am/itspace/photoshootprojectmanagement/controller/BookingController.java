@@ -1,6 +1,7 @@
 package am.itspace.photoshootprojectmanagement.controller;
 
 import am.itspace.photoshootprojectmanagement.entity.Booking;
+import am.itspace.photoshootprojectmanagement.entity.Role;
 import am.itspace.photoshootprojectmanagement.security.SpringUser;
 import am.itspace.photoshootprojectmanagement.service.BookingService;
 import am.itspace.photoshootprojectmanagement.service.EventCategoryService;
@@ -37,20 +38,25 @@ public class BookingController {
     private final EventCategoryService eventCategoryService;
 
     @GetMapping
-    public String bookingPage(ModelMap modelMap,
-                              @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                              @RequestParam(value = "size", required = false, defaultValue = "3") int size,
-                              @RequestParam(value = "orderBy", required = false, defaultValue = "bookingDate") String orderBy,
-                              @RequestParam(value = "order", required = false, defaultValue = "DESC") String order) {
+    public String bookingsPage(ModelMap modelMap,
+                               @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                               @RequestParam(value = "size", required = false, defaultValue = "3") int size,
+                               @RequestParam(value = "orderBy", required = false, defaultValue = "bookingDate") String orderBy,
+                               @RequestParam(value = "order", required = false, defaultValue = "DESC") String order,
+                               @AuthenticationPrincipal SpringUser springUser) {
 
+        // Create a Pageable object based on pagination parameters
         Pageable pageable = PageRequest.of(page - 1, size, Sort.Direction.fromString(order), orderBy);
-        Page<Booking> bookingsPage = bookingService.findAll(pageable);
 
-        // There is a bug in users/bookingPage. User can see only his booking, but the booking
-        // page size is actually greater, so pagination works out of my control.
-        // The problem comes from the upper "bookingService.findAll(pageable)" method. ⬆️
-        // it should return the bookings only related to the currentUser, so tha pagination can work correct.
+        // Retrieve bookings based on user role
+        Page<Booking> bookingsPage;
+        if (springUser.getUser().getRole() == Role.ADMIN) {
+            bookingsPage = bookingService.findAll(pageable); // Admins see all bookings
+        } else {
+            bookingsPage = bookingService.findByUserId(pageable, springUser.getUser().getId());  // Regular users see only their bookings
+        }
 
+        // Generate page numbers for pagination links if multiple pages exist
         int totalPages = bookingsPage.getTotalPages();
         if (totalPages > 0) {
             List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
@@ -90,11 +96,11 @@ public class BookingController {
         return "users/updateBooking";
     }
 
-    @PostMapping("/update/{id}")
+    @PostMapping("/update")
     public String update(@ModelAttribute Booking booking,
-                         @PathVariable("id") int id) {
+                         @AuthenticationPrincipal SpringUser springUser) {
 
-        booking.setId(id);
+        booking.setUser(springUser.getUser());
         bookingService.update(booking);
 
         return "redirect:/bookings";
