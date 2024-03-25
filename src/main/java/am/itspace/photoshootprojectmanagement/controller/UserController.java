@@ -5,13 +5,11 @@ import am.itspace.photoshootprojectmanagement.entity.User;
 import am.itspace.photoshootprojectmanagement.security.SpringUser;
 import am.itspace.photoshootprojectmanagement.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,18 +21,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/users")
-@Slf4j
 public class UserController {
 
     private final UserService userService;
-
-    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public String usersPage(ModelMap modelMap,
@@ -78,44 +72,29 @@ public class UserController {
     @PostMapping("/register")
     public String register(@ModelAttribute User user,
                            @RequestParam("picture") MultipartFile multipartFile) {
-
-        Optional<User> byEmail = userService.findByEmail(user.getEmail());
-        if (byEmail.isPresent()) {
-            return "redirect:/users/register?msg=Email already in use";
-        } else {
-
-            // TODO create a method which sends a verification email to user
-
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userService.save(user, multipartFile);
-
-            return "redirect:/users/register?msg=User Registered";
-        }
+        return userService.registerUser(user, multipartFile).get();
     }
 
     @GetMapping("/loginPage")
     public String loginPage(@AuthenticationPrincipal SpringUser springUser) {
-        log.info("loginPage called");
 
         if (springUser == null) {
             return "loginPage";
         }
 
-        log.info("SpringUser {} logged in ", springUser.getUser().getEmail());
         return "redirect:/";
     }
 
     @GetMapping("/loginSuccess")
     public String loginSuccess(@AuthenticationPrincipal SpringUser springUser) {
+        return (springUser.getUser().getRole() == Role.ADMIN)
+                ? "redirect:/users/admin/home"
+                : "redirect:/";
+    }
 
-        User user = springUser.getUser();
-        log.info("SpringUser {} is", springUser.getUser().getEmail());
-
-        if (user.getRole() == Role.ADMIN) {
-            return "redirect:/admin/home";
-        }
-
-        return "redirect:/";
+    @GetMapping("/admin/home")
+    public String adminPage() {
+        return "admin/home";
     }
 
     @GetMapping("/update/{id}")

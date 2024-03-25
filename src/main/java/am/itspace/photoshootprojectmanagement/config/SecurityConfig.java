@@ -5,6 +5,7 @@ import am.itspace.photoshootprojectmanagement.security.UserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,20 +27,30 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
+                        //Login and Register
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/admin/**").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/login").permitAll()
                         .requestMatchers("/users/loginPage").permitAll()
+                        .requestMatchers("/users/loginSuccess").authenticated()
                         .requestMatchers("/users/register").permitAll()
-                        .requestMatchers("/reviews").hasAnyAuthority(Role.ADMIN.name())
-                        .requestMatchers("/reviews/create").authenticated()
-                        .requestMatchers("/reviews/update/").authenticated()
-                        .requestMatchers("/reviews/delete/").authenticated()
+                        // Reviews
+                        .requestMatchers("/reviews").permitAll()
+                        .requestMatchers("/reviews/create").hasAnyAuthority(Role.USER.name())
+                        .requestMatchers("/reviews/update/**").authenticated()
+                        // Bookings
+                        .requestMatchers("/bookings").permitAll()
+                        .requestMatchers("/bookings/**").authenticated()
+
+                        // Event Categories
+                        .requestMatchers(HttpMethod.GET, "/eventCategories").permitAll()
+                        .requestMatchers("/eventCategories/**").hasAnyAuthority(Role.ADMIN.name())
                         .anyRequest().authenticated()
+
                 )
                 .formLogin(formLogin -> formLogin
                         .loginProcessingUrl("/login")
-                        .loginPage("/loginPage")
+                        .loginPage("/users/loginPage")
                         .defaultSuccessUrl("/users/loginSuccess", true)
                 )
                 .logout(logout -> logout

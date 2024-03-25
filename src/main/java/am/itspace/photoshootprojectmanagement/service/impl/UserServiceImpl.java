@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +24,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final FileComponent fileComponent;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public User save(User user, MultipartFile multipartFile) {
@@ -118,6 +121,18 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
 
             fileComponent.deletePicture(avatarUrl);
+        }
+    }
+
+    @Override
+    public Optional<String> registerUser(User user, MultipartFile multipartFile) {
+        Optional<User> byEmail = findByEmail(user.getEmail());
+        if (byEmail.isPresent()) {
+            return Optional.of("redirect:/users/register?msg=Email already in use");
+        } else {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            save(user, multipartFile);
+            return Optional.of("redirect:/users/register?msg=User Registered");
         }
     }
 }

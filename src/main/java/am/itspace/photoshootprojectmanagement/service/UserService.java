@@ -25,4 +25,5 @@ public interface UserService {
 
     void deletePicture(int id);
 
+    Optional<String> registerUser(User user, MultipartFile multipartFile);
 }
